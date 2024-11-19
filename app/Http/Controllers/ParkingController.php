@@ -2,13 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Services\InfluxDBService;
 
 class ParkingController extends Controller
 {
+    protected $influxDBService;
+
+    public function __construct(InfluxDBService $influxDBService)
+    {
+        $this->influxDBService = $influxDBService;
+    }
+    
     public function home()
     {
-        return view('home');
+        $query = 'from(bucket: "ESP_BUCKET") 
+          |> range(start: -1h) 
+          |> filter(fn: (r) => r._measurement == "estacionamento_inteligente")';
+
+        $result = $this->influxDBService->queryData($query);
+
+        dd($result);
+
+        return view('home', compact('result'));
     }
 
     public function sector1()
