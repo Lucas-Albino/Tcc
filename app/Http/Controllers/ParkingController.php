@@ -7,68 +7,81 @@ use App\Services\InfluxDBService;
 class ParkingController extends Controller
 {
     protected $influxDBService;
+    protected $result;
 
     public function __construct(InfluxDBService $influxDBService)
     {
         $this->influxDBService = $influxDBService;
+
+        $query = 'from(bucket: "ESP_BUCKET") 
+        |> range(start: -1h) 
+        |> filter(fn: (r) => r._measurement == "estacionamento_inteligente")';
+
+        $this->result = $this->influxDBService->queryData($query);
     }
     
     public function home()
     {
-        $query = 'from(bucket: "ESP_BUCKET") 
-          |> range(start: -1h) 
-          |> filter(fn: (r) => r._measurement == "estacionamento_inteligente")';
-
-        $result = $this->influxDBService->queryData($query);
-
-        dd($result);
-
-        return view('home', compact('result'));
+        return view('home');
     }
 
     public function sector1()
     {
-        $vagas = [
-            'a1' => 1,
-            'a2' => 0,
-            'a3' => 1,
-            'a4' => 1,
-            'a5' => 0
-        ];
+        $setor1 = [];
 
-        return view('sectors.sector1', compact('vagas'));
+        foreach ($this->result as $value) {
+            if(end($value->records)->values["setor"] == "Setor 1" ){
+                $setor1[] = end($value->records)->values;
+            }
+
+            if(end($value->records)->values["setor"] == "Setor 2" ){
+                $setor2[] = end($value->records)->values;
+            }
+        }
+
+        return view('sectors.sector1', compact('setor1'));
     }
 
     public function sector2()
     {
-        $vagas = [
-            'b1' => 1,
-            'b2' => 0,
-            'b3' => 1,
-            'b4' => 1,
-            'b5' => 0
-        ];
+        $setor2 = [];
 
-        return view('sectors.sector2', compact('vagas'));
+        foreach ($this->result as $value) {
+            if(end($value->records)->values["setor"] == "Setor 2" ){
+                $setor2[] = end($value->records)->values;
+            }
+        }
+
+        return view('sectors.sector2', compact('setor2'));
     }
 
     public function sector3()
     {
-        $vagas = [];
+        $setor3 = [];
 
-        return view('sectors.sector3', compact('vagas'));
+        foreach ($this->result as $value) {
+            if(end($value->records)->values["setor"] == "Setor 3" ){
+                $setor3[] = end($value->records)->values;
+            }
+        }
+
+        return view('sectors.sector3', compact('setor3'));
     }
 
     public function freeParking()
     {
-        $vagas = [
-            'a1' => 1,
-            'b2' => 1,
-            'a3' => 1,
-            'b4' => 1,
-            'a5' => 1
-        ];
+        $query = 'from(bucket: "ESP_BUCKET") 
+        |> range(start: -1h) 
+        |> filter(fn: (r) => r._measurement == "estacionamento_inteligente")';
 
-        return view('sectors.freeParking', compact('vagas'));
+        $result = $this->influxDBService->queryData($query);
+
+        $freeParking = [];
+        foreach ($result as $value) {
+            if(end($value->records)->values["_value"] == true){
+                $freeParking[] = end($value->records)->values;
+            }
+        }
+        return view('sectors.freeParking', compact('freeParking'));
     }
 }

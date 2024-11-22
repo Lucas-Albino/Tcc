@@ -11,10 +11,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($vagas as $key => $value)
-                        <tr class="{{ $value ? 'bg-success' : 'bg-danger' }}">
-                            <td>{{ $key }}</td>
-                            <td>{{ $value ? 'Disponível' : 'Indisponível' }}</td>
+                    @forelse ($setor3 as $vaga)
+                        <tr class={{ $vaga['_value'] ? 'bg-success' : 'bg-danger' }}>
+                            <td>{{ $vaga['sensor'] }}</td>
+                            <td>{{ $vaga['_value'] ? 'Disponível' : 'Indisponível' }}</td>
                         </tr>
                     @empty
                         <tr>
