@@ -19,7 +19,7 @@
                         </tr>
                     @empty
                         <tr class="text-dark">
-                            <td colspan="2" class="text-stroke">Setor indisponível no momento</td>
+                            <td colspan="2" class="text-stroke"><b>Nenhuma vaga disponível no momento</b></td>
                         </tr>
                     @endforelse
                 </tbody>
